@@ -101,14 +101,14 @@ async def extract_character_fast(position: int) -> dict[str, Any]:
             char = chr(low)
             
             # Update progress with the extracted character
-            from src.memory.progress import read_progress, update_progress
-            progress = read_progress()
+            from src.memory.progress import load_progress, update_progress_field
+            progress = load_progress()
             current_password = progress.get("extracted_password", "")
             
             # Only append if this is the next position
             if position == len(current_password) + 1:
-                update_progress("extracted_password", current_password + char)
-                update_progress("current_position", position + 1)
+                update_progress_field("extracted_password", current_password + char)
+                update_progress_field("current_position", position + 1)
             
             return {
                 "success": True,
@@ -184,14 +184,14 @@ async def extract_password_fast(start_position: int = 1, password_length: int = 
                 print(f"  Position {pos}: '{char}' -> '{password}'")
             
             # Update progress with the full extracted password
-            from src.memory.progress import read_progress, update_progress
-            progress = read_progress()
+            from src.memory.progress import load_progress, update_progress_field
+            progress = load_progress()
             existing_password = progress.get("extracted_password", "")
             full_password = existing_password + password
             
-            update_progress("extracted_password", full_password)
-            update_progress("password_length", password_length)
-            update_progress("current_position", password_length + 1)
+            update_progress_field("extracted_password", full_password)
+            update_progress_field("password_length", password_length)
+            update_progress_field("current_position", password_length + 1)
             
             return {
                 "success": True,

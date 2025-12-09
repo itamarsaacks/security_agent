@@ -510,8 +510,8 @@ async def submit_solution(password: str) -> dict[str, Any]:
         
         if lab_solved:
             # Update progress to mark lab as solved
-            from src.memory.progress import update_progress
-            update_progress("lab_solved", True)
+            from src.memory.progress import update_progress_field
+            update_progress_field("lab_solved", True)
             
             return {
                 "success": True,
@@ -520,8 +520,8 @@ async def submit_solution(password: str) -> dict[str, Any]:
             }
         elif logged_in:
             # Update progress to mark lab as solved
-            from src.memory.progress import update_progress
-            update_progress("lab_solved", True)
+            from src.memory.progress import update_progress_field
+            update_progress_field("lab_solved", True)
             
             return {
                 "success": True,

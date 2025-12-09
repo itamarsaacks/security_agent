@@ -1,0 +1,35 @@
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+workspace/progress.json
+workspace/tasks.json
+workspace/screenshots/
+quick_extract.py
+
+# Playwright
+playwright-report/
+test-results/
+
+# Logs
+*.log
+

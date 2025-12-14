@@ -17,55 +17,139 @@ This agent uses the ReAct (Reasoning + Acting) architecture to systematically ex
 
 ## Setup
 
-### 1. Install Dependencies
+### Prerequisites
+
+- **Python 3.8+** installed
+- **PortSwigger account** (free): https://portswigger.net/users/register
+- **OpenAI API key** OR **Anthropic API key** (at least one required)
+  - OpenAI (cheaper): https://platform.openai.com/api-keys
+  - Anthropic: https://console.anthropic.com/
+- **Optional**: Tavily API key for web search: https://tavily.com/
+- **Optional**: LangSmith for tracing: https://smith.langchain.com/
+
+### 1. Clone/Download the Project
+
+```bash
+# If you have the project folder
+cd security-agent
+
+# If cloning from GitHub
+git clone <repo-url>
+cd security-agent
+```
+
+### 2. Install Dependencies
 
 ```bash
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Activate it
+source venv/bin/activate  # On macOS/Linux
+# OR
+venv\Scripts\activate     # On Windows
 
 # Install dependencies
 pip install -e .
 
-# Install Playwright browsers
+# Install Playwright browsers (required for browser automation)
 playwright install chromium
 ```
 
-### 2. Configure Environment
+**Note**: If `pip install -e .` fails, try: `pip install langgraph langchain langchain-openai langchain-anthropic playwright tavily-python python-dotenv`
 
-Copy `env.example` to `.env` and fill in your API keys:
+### 3. Configure Environment Variables
 
 ```bash
+# Copy the example file
 cp env.example .env
+
+# Open .env in your editor and fill it out
 ```
 
-Required variables:
-- `ANTHROPIC_API_KEY`: Your Anthropic API key for Claude
-- `PORTSWIGGER_EMAIL`: Your PortSwigger account email
-- `PORTSWIGGER_PASSWORD`: Your PortSwigger account password
+**Required variables**:
+```env
+# Choose ONE provider (or configure both)
+LLM_PROVIDER=openai              # or "anthropic"
+OPENAI_API_KEY=sk-...            # Get from OpenAI
+OPENAI_MODEL=gpt-4o-mini         # Cheapest option (~$0.10/run)
 
-Optional:
-- `TAVILY_API_KEY`: For web search functionality
-- `LANGSMITH_API_KEY`: For tracing and evaluation
+# OR for Anthropic:
+# LLM_PROVIDER=anthropic
+# ANTHROPIC_API_KEY=sk-ant-...
+# ANTHROPIC_MODEL=claude-3-5-haiku-20241022
 
-### 3. Start a Lab
+# Your PortSwigger credentials
+PORTSWIGGER_EMAIL=your-email@example.com
+PORTSWIGGER_PASSWORD=your-password
+```
 
-1. Go to [PortSwigger Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses)
-2. Click "Access the lab" to start a new lab instance
-3. Copy the lab URL (e.g., `https://xxxxx.web-security-academy.net/`)
+**Optional variables**:
+```env
+TAVILY_API_KEY=tvly-...          # For web search (rarely needed)
+LANGSMITH_API_KEY=lsv2_...       # For tracing/debugging
+LANGSMITH_TRACING=true
+LANGSMITH_PROJECT=security_agent
+```
+
+### 4. Verify Setup
+
+```bash
+# Test that everything is installed
+python -c "import langgraph, playwright; print('✅ All good!')"
+```
 
 ## Usage
 
+### Quick Start
+
+**Option 1: Let the agent access the lab for you** (recommended)
 ```bash
-# Run the agent on a lab
-python main.py "https://YOUR-LAB-ID.web-security-academy.net/"
-
-# With custom description
-python main.py "https://YOUR-LAB-ID.web-security-academy.net/" -d "Custom lab description"
-
-# Without checkpointing
-python main.py "https://YOUR-LAB-ID.web-security-academy.net/" --no-checkpointer
+python main.py "https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses"
 ```
+
+**Option 2: Provide a lab instance URL**
+1. Go to: https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses
+2. Click "Access the lab"
+3. Copy the lab URL (looks like `https://0a1b2c3d.web-security-academy.net/`)
+4. Run:
+```bash
+python main.py "https://0a1b2c3d.web-security-academy.net/"
+```
+
+### Advanced Options
+
+```bash
+# Without checkpointing (faster but can't resume)
+python main.py <URL> --no-checkpointer
+```
+
+### Expected Output
+
+```
+============================================================
+SQL Injection Agent
+============================================================
+Lab URL: https://...
+Started: 2025-12-14T15:00:00
+
+Starting agent...
+[Agent will work through the lab...]
+
+============================================================
+Agent Completed
+============================================================
+Vulnerability confirmed: True
+Password length: 20
+Extracted password: s3cr3tpassw0rd123456
+Total queries: 147
+Lab solved: True
+
+Completed: 2025-12-14T15:03:00
+```
+
+**Time**: ~2-3 minutes  
+**Cost**: ~$0.10-0.20 with GPT-4o-mini
 
 ## How It Works
 
@@ -151,4 +235,47 @@ pytest
 ## Disclaimer
 
 This tool is for educational purposes only. Only use on systems you have permission to test. The PortSwigger Web Security Academy labs are designed for learning web security.
+
+## Troubleshooting
+
+### "ModuleNotFoundError: No module named 'langgraph'"
+```bash
+# Make sure virtual environment is activated
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Reinstall dependencies
+pip install -e .
+```
+
+### "Playwright not found" or browser errors
+```bash
+# Install Playwright browsers
+playwright install chromium
+```
+
+### "API key not found" or authentication errors
+- Double-check your `.env` file exists (not `.env.example`)
+- Verify API keys are correct (no extra spaces/quotes)
+- For OpenAI: Key should start with `sk-`
+- For Anthropic: Key should start with `sk-ant-`
+
+### "Could not access lab" or "Login failed"
+- Verify PortSwigger email/password in `.env` are correct
+- Try logging into PortSwigger website manually first
+- Make sure you have an active internet connection
+
+### Agent runs but finds no password
+- Check `workspace/progress.json` for errors
+- Look at LangSmith trace if enabled
+- Try running again (sometimes labs timeout)
+
+### High costs / running out of credits
+- Use `LLM_PROVIDER=openai` with `OPENAI_MODEL=gpt-4o-mini` (cheapest)
+- Each run should cost ~$0.10-0.20
+- Anthropic models are more expensive
+
+### Need help?
+- Check `workspace/progress.json` for detailed error logs
+- Enable LangSmith tracing to see what the agent is doing
+- Open an issue on GitHub with your error message
 

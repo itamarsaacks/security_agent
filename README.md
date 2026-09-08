@@ -1,10 +1,11 @@
 # SQL Injection Agent
 
-A multi-agent system using LangGraph to exploit blind SQL injection vulnerabilities with conditional responses.
+a ReAct agent with a deterministic extraction fast-path. system using LangGraph to exploit blind SQL injection vulnerabilities with conditional responses.
 
 ## Overview
 
 This agent uses the ReAct (Reasoning + Acting) architecture to systematically extract data from a database through blind SQL injection. It's designed for the [PortSwigger Web Security Academy](https://portswigger.net/web-security/sql-injection/blind) blind SQL injection labs.
+The interesting problem here wasn't the SQL, it was keeping an agent's context small over a 150-query session. I solved it with filesystem memory plus a sliding window.
 
 ## Features
 
